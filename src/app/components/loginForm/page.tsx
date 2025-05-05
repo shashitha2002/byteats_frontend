@@ -67,10 +67,10 @@ const LoginForm = () => {
         );
 
         if (res.status === 201) {
-          setUser(res.data.user);
+          setUser(res.data.deliveryPerson);
           setToken(res.data.token);
           localStorage.setItem("token", res.data.token);
-          localStorage.setItem("user", JSON.stringify(res.data.user));
+          localStorage.setItem("user", JSON.stringify(res.data.deliveryPerson));
           router.push("/deliveryPerson");
         }
       }
