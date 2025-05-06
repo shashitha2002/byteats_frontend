@@ -19,7 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useUserStore } from '@/store/userStore';
 import axios from 'axios';
-
+import { useRouter } from 'next/navigation';
 
 interface RestaurantMenuPageProps {
   id: string;
@@ -28,6 +28,7 @@ const RestaurantMenuPage = ({ id }: RestaurantMenuPageProps) => {
   
   const [menu, setMenu] = React.useState<Menu | null>();
   const [loading, setLoading] = React.useState<boolean>(true);
+  const router = useRouter()
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -71,8 +72,9 @@ const RestaurantMenuPage = ({ id }: RestaurantMenuPageProps) => {
         name: item.name,
         imageUrl: item.imageUrl
       });
-
       console.log(`${item.name} added to cart!`);
+      router.push('/user/cart');
+
     } catch (error) {
       console.error('Add to cart failed:', error);
     }
