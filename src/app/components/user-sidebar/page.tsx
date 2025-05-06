@@ -28,7 +28,7 @@ const items = [
   },
   {
     title: "Cart",
-    url: "#",
+    url: "/user/cart",
     icon: ShoppingCart,
   },
   {

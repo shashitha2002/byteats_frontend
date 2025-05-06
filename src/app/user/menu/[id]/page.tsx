@@ -17,7 +17,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Button } from '@/components/ui/button';
-
+import { useUserStore } from '@/store/userStore';
+import axios from 'axios';
 
 
 interface RestaurantMenuPageProps {
@@ -32,8 +33,8 @@ const RestaurantMenuPage = ({ id }: RestaurantMenuPageProps) => {
     const fetchMenu = async () => {
       try {
         setLoading(true);
-        /* const response = await fetch(`http://localhost:5001/api/menu-items/restaurant/${id}`); */
-        const response = await fetch(`http://byteats.local/api/menu-items/restaurant/${id}`);
+          const response = await fetch(`http://localhost:5001/api/menu-items/restaurant/${id}`); 
+        /* const response = await fetch(`http://byteats.local/api/menu-items/restaurant/${id}`); */
         const data = await response.json();
         setMenu(data);
         console.log("Menu Data:", data);
@@ -52,6 +53,30 @@ const RestaurantMenuPage = ({ id }: RestaurantMenuPageProps) => {
     acc[category].push(item);
     return acc;
   }, {} as Record<string, typeof menu.items>) || {};
+
+  const handleAddToCart = async (item: Menu['items'][number]) => {
+    const userId = useUserStore.getState().user?._id; //fetch userid from localstorage
+
+    if (!userId) {
+      console.log("user not logged in...");
+      return;
+    }
+
+    try {
+      await axios.post('http://localhost:5002/api/cart/add', {
+        userId,
+        itemId: item._id,
+        quantity: 1,
+        price: item.price,
+        name: item.name,
+        imageUrl: item.imageUrl
+      });
+
+      console.log(`${item.name} added to cart!`);
+    } catch (error) {
+      console.error('Add to cart failed:', error);
+    }
+  };
 
   return (
 
@@ -94,7 +119,7 @@ const RestaurantMenuPage = ({ id }: RestaurantMenuPageProps) => {
 
                         {/* Add to cart button is here */}
                         <div><p className='font-light'>Do you want to add <span className='font-medium'>{item.name}</span> to the cart?</p></div>
-                        <Button className='mt-2 bg-green-600'>Add To Cart</Button>
+                        <Button className='mt-2 bg-green-600' onClick={() => handleAddToCart(item)}>Add To Cart</Button>
                         
                         </PopoverContent>
                       </Popover>
