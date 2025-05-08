@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CartStore } from "@/store/cartStore";
 import { Trash2 } from 'lucide-react';
 import { useUserStore } from "@/store/userStore";
+import { toast, Toaster } from "react-hot-toast";
 
 export default function CartPage() {
   const { items: cartItems, fetchCart, updateItem, removeItem, clearCart, checkout } = CartStore();
@@ -28,6 +29,7 @@ export default function CartPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto bg-white min-h-screen">
+      <Toaster/>
       <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">
         Your Cart ({cartItems.length} {cartItems.length === 1 ? "item" : "items"})
       </h1>
@@ -164,8 +166,10 @@ export default function CartPage() {
     if (newQuantity < 1 || !userId) return;
     try {
       await updateItem(itemId, newQuantity);
+      toast.success("Quantity updated successfully!");
     } catch (err) {
       console.error("Failed to update quantity:", err);
+      toast.error("Failed to update quantity. Please try again.");
     }
   }
 
@@ -173,8 +177,10 @@ export default function CartPage() {
     if (!confirm("Remove this item from your cart?") || !userId) return;
     try {
       await removeItem(itemId);
+      toast.success("Item removed from cart!");
     } catch (err) {
       console.error("Failed to remove item:", err);
+      toast.error("Failed to remove item. Please try again.");
     }
   }
 
@@ -182,8 +188,10 @@ export default function CartPage() {
     if (!confirm("Are you sure you want to clear the cart?") || !userId) return;
     try {
       await clearCart();
+      toast.success("Cart cleared successfully!");
     } catch (err) {
       console.error("Failed to clear cart:", err);
+      toast.error("Failed to clear cart. Please try again.");
     }
   }
 
@@ -191,8 +199,10 @@ export default function CartPage() {
     if (!confirm("Are you sure you want to place the order?") || !userId || !address.trim()) return;
     try {
       await checkout(address);
+      toast.success("Order placed successfully!");
     } catch (err) {
       console.error("Checkout failed:", err);
+      toast.error("Checkout failed. Please try again.");
     }
   }
 }
