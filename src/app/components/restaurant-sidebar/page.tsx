@@ -23,12 +23,12 @@ const items = [
   },
   {
     title: "Menu",
-    url: "#",
+    url: "/restaurant/menu",
     icon: SquareMenu,
   },
   {
     title: "Add Menu Item",
-    url: "#",
+    url: "/restaurant/menu/create",
     icon: PackagePlus,
   },
   {
