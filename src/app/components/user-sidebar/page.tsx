@@ -1,5 +1,5 @@
 "use client";
-import { PackageOpen, HandCoins , Settings,House,ShoppingCart } from "lucide-react";
+import { PackageOpen, HandCoins , Settings,House,ShoppingCart,ListOrdered } from "lucide-react";
 import { useUserStore } from "@/store/userStore";
 
 import {
@@ -25,6 +25,11 @@ const items = [
     title: "Orders",
     url: "#",
     icon: PackageOpen,
+  },
+  {
+    title: "TrackOrders",
+    url: "/user/track-orders",
+    icon: ListOrdered,
   },
   {
     title: "Cart",
