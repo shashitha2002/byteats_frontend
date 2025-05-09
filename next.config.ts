@@ -16,6 +16,13 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     return [
+        // reviews
+      {
+        source: '/api/reviews:path*',
+        destination: 'http://localhost:5002/api/reviews:path*',
+        },
+
+
       // Add payment API rewrite rules
       {
         source: '/api/payment/:path*',
