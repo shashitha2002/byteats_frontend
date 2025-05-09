@@ -229,7 +229,7 @@ const CheckoutPage = () => {
   const orderDetails: OrderDetails = {
     orderId: 'order_' + Math.random().toString(36).substring(2, 9),
     totalPrice: cartTotal,
-    currency: 'Rs. '
+    currency: "lkr"
   };
 
   // This function is called after the user submits their card details
