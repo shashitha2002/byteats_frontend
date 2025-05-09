@@ -114,7 +114,7 @@ const RestaurantMenuPage = ({ id }: RestaurantMenuPageProps) => {
                             {item.description}
                           </p>
                         )}
-                        <p className="text-primary text-xl font-bold mt-2">${item.price}</p>
+                        <p className="text-primary text-xl font-bold mt-2">Rs. {item.price}</p>
                       </CardContent>
                       </PopoverTrigger>
                       <PopoverContent className='bg-gray-100'>
