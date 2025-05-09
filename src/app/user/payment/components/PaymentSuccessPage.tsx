@@ -91,7 +91,7 @@ const PaymentSuccessPage = () => {
             <p className="error-message">{error}</p>
             
             <div>
-              <Link href="/" className="home-link">
+              <Link href="/user/restaurants" className="home-link">
                 <span>
                   Return to Home
                 </span>
