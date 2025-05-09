@@ -5,7 +5,7 @@ import { CartStore } from "@/store/cartStore";
 import { Trash2 } from 'lucide-react';
 import { useUserStore } from "@/store/userStore";
 import { toast, Toaster } from "react-hot-toast";
-
+import Link from "next/link";
 export default function CartPage() {
   const { items: cartItems, fetchCart, updateItem, removeItem, clearCart, checkout } = CartStore();
   const [address, setAddress] = useState<string>("");
@@ -148,13 +148,14 @@ export default function CartPage() {
                 required
               />
             </div>
-
+            <Link href={`/user/payment/checkout?total=${total}`}>
             <button 
               onClick={handleCheckout}
               className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition shadow-md"
             >
               Proceed to Checkout
             </button>
+            </Link>
           </div>
         </div>
       )}

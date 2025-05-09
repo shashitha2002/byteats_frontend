@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { 
-  Elements, 
-  PaymentElement, 
-  useStripe, 
+import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
   useElements,
   CardElement
 } from '@stripe/react-stripe-js';
@@ -21,9 +21,9 @@ interface OrderDetails {
 }
 
 // Cart-First Approach: Show card entry fields before creating payment intent
-const CardEntryForm = ({ orderDetails, onPaymentSubmit }: { 
-  orderDetails: OrderDetails, 
-  onPaymentSubmit: (paymentMethod: any) => void 
+const CardEntryForm = ({ orderDetails, onPaymentSubmit }: {
+  orderDetails: OrderDetails,
+  onPaymentSubmit: (paymentMethod: any) => void
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -92,12 +92,12 @@ const CardEntryForm = ({ orderDetails, onPaymentSubmit }: {
           }} />
         </div>
       </div>
-      
+
       {error && <div >{error}</div>}
-      
+
       <div className="button-group">
         <button className="btn btn-primary"
-          type="submit" 
+          type="submit"
           disabled={!stripe || isLoading}
         >
           {isLoading ? 'Processing...' : 'Submit Card'}
@@ -114,12 +114,12 @@ const CardEntryForm = ({ orderDetails, onPaymentSubmit }: {
 };
 
 // Fixed PaymentConfirmation component with correct URL path
-const PaymentConfirmation = ({ 
-  clientSecret, 
-  orderDetails 
-}: { 
-  clientSecret: string, 
-  orderDetails: OrderDetails 
+const PaymentConfirmation = ({
+  clientSecret,
+  orderDetails
+}: {
+  clientSecret: string,
+  orderDetails: OrderDetails
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -140,7 +140,7 @@ const PaymentConfirmation = ({
 
     try {
       console.log(`Processing payment confirmation...`);
-      
+
       // Confirm the payment
       const result = await stripe.confirmPayment({
         clientSecret,
@@ -150,9 +150,9 @@ const PaymentConfirmation = ({
         },
         redirect: 'if_required',
       });
-      
+
       console.log("Stripe confirmation result:", JSON.stringify(result));
-      
+
       if (result.error) {
         throw new Error(`Stripe error: ${result.error.message}`);
       }
@@ -175,7 +175,7 @@ const PaymentConfirmation = ({
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       console.error('Payment error:', err);
       setError(errorMessage);
-      
+
       if (err instanceof Error && err.stack) {
         setDebugInfo(err.stack);
       }
@@ -188,7 +188,7 @@ const PaymentConfirmation = ({
     <div className="confirmation-box">
       <h3>Confirm Your Payment</h3>
       <p>Your card information has been securely stored. Click below to complete your payment.</p>
-      
+
       {error && <div className="error-message">{error}</div>}
       {debugInfo && (
         <div className="debug-info" style={{ fontSize: '12px', marginTop: '10px', padding: '8px', backgroundColor: '#f8f8f8', borderRadius: '4px', maxHeight: '100px', overflow: 'auto' }}>
@@ -198,7 +198,7 @@ const PaymentConfirmation = ({
           </details>
         </div>
       )}
-      
+
       <div className="button-group">
         <button className="btn btn-primary"
           onClick={handleConfirmPayment}
@@ -217,71 +217,75 @@ const PaymentConfirmation = ({
 };
 const CheckoutPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
+  // Get the total from URL query parameters and convert to number
+  const cartTotal = Number(searchParams.get('total')) || 0;
+
   // Generate a random order ID and set demo order details
   const orderDetails: OrderDetails = {
     orderId: 'order_' + Math.random().toString(36).substring(2, 9),
-    totalPrice: 123.99,
-    currency: 'usd'
+    totalPrice: cartTotal,
+    currency: 'Rs. '
   };
 
   // This function is called after the user submits their card details
   // In your CheckoutPage component's handlePaymentMethodCreated function
-const handlePaymentMethodCreated = async (paymentMethod: any) => {
-  setIsLoading(true);
-  setError(null);
-  
-  try {
-    const response = await fetch('/api/create-payment-intent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        orderId: orderDetails.orderId,
-        totalPrice: orderDetails.totalPrice,
-        currency: orderDetails.currency,
-        paymentMethodId: paymentMethod.id
-      }),
-    });
+  const handlePaymentMethodCreated = async (paymentMethod: any) => {
+    setIsLoading(true);
+    setError(null);
 
-    const responseText = await response.text();
-    let data;
     try {
-      data = JSON.parse(responseText);
-    } catch (e) {
-      throw new Error(`Invalid response from server: ${responseText.substring(0, 100)}...`);
-    }
+      const response = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId: orderDetails.orderId,
+          totalPrice: orderDetails.totalPrice,
+          currency: orderDetails.currency,
+          paymentMethodId: paymentMethod.id
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to create payment intent');
-    }
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        throw new Error(`Invalid response from server: ${responseText.substring(0, 100)}...`);
+      }
 
-    setClientSecret(data.clientSecret);
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-    setError(errorMessage);
-    console.error('Error creating payment intent:', err);
-  } finally {
-    setIsLoading(false);
-  }
-};
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create payment intent');
+      }
+
+      setClientSecret(data.clientSecret);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      setError(errorMessage);
+      console.error('Error creating payment intent:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Options for Stripe Elements - simple version for card entry
   // Options for Stripe Elements - simple version for card entry
   const cardOptions: StripeElementsOptions = {
     appearance: { theme: 'stripe' }
   };
-  
+
   // Options for payment confirmation
-  const confirmOptions: StripeElementsOptions = clientSecret 
+  const confirmOptions: StripeElementsOptions = clientSecret
     ? {
-        clientSecret,
-        appearance: { theme: 'stripe' },
-      }
+      clientSecret,
+      appearance: { theme: 'stripe' },
+    }
     : { appearance: { theme: 'stripe' } };
 
   if (error) {
@@ -313,31 +317,33 @@ const handlePaymentMethodCreated = async (paymentMethod: any) => {
     <div className="checkout-container">
       <div className="checkout-header">
         <h1 >Complete Your Order</h1>
-        
+
         <div className="order-summary" >
           <h2>Order Summary</h2>
+
+          {/*  
           <div >
             <span>Order ID:</span>
             <span>{orderDetails.orderId}</span>
-          </div>
+          </div>*/}
           <div >
-            <span>Total:</span>
-            <span>${orderDetails.totalPrice.toFixed(2)} {orderDetails.currency.toUpperCase()}</span>
+            <span>Total : </span>
+            <span> Rs. {orderDetails.totalPrice.toFixed(2)} </span>
           </div>
-          <hr/>
-          
+          <hr />
+
           {!clientSecret ? (
             <Elements stripe={stripePromise} options={cardOptions}>
-              <CardEntryForm 
-                orderDetails={orderDetails} 
-                onPaymentSubmit={handlePaymentMethodCreated} 
+              <CardEntryForm
+                orderDetails={orderDetails}
+                onPaymentSubmit={handlePaymentMethodCreated}
               />
             </Elements>
           ) : (
             <Elements stripe={stripePromise} options={confirmOptions}>
-              <PaymentConfirmation 
-                clientSecret={clientSecret} 
-                orderDetails={orderDetails} 
+              <PaymentConfirmation
+                clientSecret={clientSecret}
+                orderDetails={orderDetails}
               />
             </Elements>
           )}
