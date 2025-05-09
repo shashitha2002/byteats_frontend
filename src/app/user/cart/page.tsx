@@ -196,7 +196,22 @@ export default function CartPage() {
   }
 
   async function handleCheckout() {
-    if (!confirm("Are you sure you want to place the order?") || !userId || !address.trim()) return;
+    if (!userId) {
+      toast.error("User not found. Please log in.");
+      return;
+    }
+  
+    if (!address.trim()) {
+      toast.error("Please enter a delivery address.");
+      return;
+    }
+  
+    const confirmed = confirm("Are you sure you want to place the order?");
+    if (!confirmed) {
+      toast("Order cancelled.");
+      return;
+    }
+  
     try {
       await checkout(address);
       toast.success("Order placed successfully!");
@@ -205,4 +220,5 @@ export default function CartPage() {
       toast.error("Checkout failed. Please try again.");
     }
   }
+  
 }
