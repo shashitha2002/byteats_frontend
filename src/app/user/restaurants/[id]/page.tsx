@@ -3,7 +3,7 @@ import Restaurant from "@/interfaces/Restaurant";
 import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RestaurantMenuPage from "@/app/user/menu/[id]/page";
-
+import Link from 'next/link';
 interface Props {
   params: {
     id: string;
@@ -53,6 +53,11 @@ const RestaurantDetailsPage = async ({ params }: Props) => {
             <TabsTrigger value="Menu" className="text-lg">
               Menu
             </TabsTrigger>
+            <Link href="/user/review">
+            <TabsTrigger value="Review" className="text-lg">
+              Reviews
+            </TabsTrigger>
+          </Link>
           </TabsList>
 
           {/* About Tab */}
